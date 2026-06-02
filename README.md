@@ -1,8 +1,8 @@
-# @arcmanagement/dev-server-log
+# dev-server-log
 
 AI-shareable dev server logging CLI.
 
-`@arcmanagement/dev-server-log` wraps a dev server command and writes the same output to:
+`dev-server-log` wraps a dev server command and writes the same output to:
 
 - the terminal
 - a stable plain text log file
@@ -13,7 +13,7 @@ This makes `tail -F` and `jq` useful while the command is still running.
 ## Install
 
 ```sh
-pnpm add -D @arcmanagement/dev-server-log
+pnpm add -D dev-server-log
 ```
 
 ## Usage
@@ -105,7 +105,7 @@ JSONL rotates only between entries, so JSON lines are not split.
 ## Library API
 
 ```ts
-import { runLoggedProcess } from '@arcmanagement/dev-server-log'
+import { runLoggedProcess } from 'dev-server-log'
 
 const result = await runLoggedProcess({
   label: 'start-dev',
