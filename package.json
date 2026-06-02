@@ -1,6 +1,6 @@
 {
   "name": "dev-server-log",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "AI-shareable dev server logging CLI",
   "type": "module",
   "license": "MIT",
