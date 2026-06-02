@@ -1,0 +1,73 @@
+{
+  "name": "dev-server-log",
+  "version": "0.1.0",
+  "description": "AI-shareable dev server logging CLI",
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arcmanagement/dev-server-log.git"
+  },
+  "homepage": "https://github.com/arcmanagement/dev-server-log#readme",
+  "bugs": {
+    "url": "https://github.com/arcmanagement/dev-server-log/issues"
+  },
+  "keywords": [
+    "ai",
+    "cli",
+    "dev-server",
+    "jsonl",
+    "log",
+    "logging",
+    "rotate",
+    "tail"
+  ],
+  "bin": {
+    "devlog": "./dist/cli.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
+  "sideEffects": false,
+  "engines": {
+    "node": ">=24"
+  },
+  "packageManager": "pnpm@11.5.1",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsx src/cli.ts",
+    "format": "biome check . --write",
+    "lint": "biome check .",
+    "pack:check": "pnpm pack",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "types:compat": "pnpm run build && pnpm --package=typescript@5.9.3 dlx tsc -p tsconfig.typescript5.json --noEmit"
+  },
+  "dependencies": {
+    "commander": "^15.0.0",
+    "cross-spawn": "^7.0.6"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.4.16",
+    "@types/cross-spawn": "^6.0.6",
+    "@types/node": "^25.9.1",
+    "tsup": "^8.5.1",
+    "tsx": "^4.22.4",
+    "typescript": "6.0.3",
+    "vitest": "^4.1.8"
+  }
+}
