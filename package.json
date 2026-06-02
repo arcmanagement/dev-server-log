@@ -1,5 +1,5 @@
 {
-  "name": "@arcmanagement/dev-server-log",
+  "name": "dev-server-log",
   "version": "0.1.0",
   "description": "AI-shareable dev server logging CLI",
   "type": "module",
