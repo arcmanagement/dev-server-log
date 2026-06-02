@@ -121,4 +121,4 @@ process.exitCode = result.exitCode
 
 Publishing is handled by GitHub Actions on `v*` tags.
 
-The repository needs a GitHub Actions secret named `NPM_TOKEN` that can publish to npmjs.com.
+Publishing uses npm Trusted Publishing from the `publish.yml` GitHub Actions workflow.
