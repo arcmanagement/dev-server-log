@@ -1,6 +1,6 @@
 {
   "name": "dev-server-log",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "AI-shareable dev server logging CLI",
   "type": "module",
   "license": "MIT",
@@ -52,19 +52,19 @@
     "format": "biome check . --write",
     "lint": "biome check .",
     "pack:check": "pnpm pack",
-    "test": "vitest run",
+    "test": "pnpm run build && vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
     "types:compat": "pnpm run build && pnpm --package=typescript@5.9.3 dlx tsc -p tsconfig.typescript5.json --noEmit"
   },
   "dependencies": {
-    "commander": "^15.0.0",
     "cross-spawn": "^7.0.6"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.16",
     "@types/cross-spawn": "^6.0.6",
     "@types/node": "^25.9.1",
+    "commander": "^15.0.0",
     "tsup": "^8.5.1",
     "tsx": "^4.22.4",
     "typescript": "6.0.3",

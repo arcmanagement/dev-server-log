@@ -8,6 +8,7 @@ export default defineConfig({
     index: 'src/index.ts',
   },
   format: ['esm'],
+  noExternal: ['commander'],
   platform: 'node',
   sourcemap: true,
   splitting: false,
