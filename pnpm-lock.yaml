@@ -8,9 +8,6 @@ importers:
 
   .:
     dependencies:
-      commander:
-        specifier: ^15.0.0
-        version: 15.0.0
       cross-spawn:
         specifier: ^7.0.6
         version: 7.0.6
@@ -24,6 +21,9 @@ importers:
       '@types/node':
         specifier: ^25.9.1
         version: 25.9.1
+      commander:
+        specifier: ^15.0.0
+        version: 15.0.0
       tsup:
         specifier: ^8.5.1
         version: 8.5.1(postcss@8.5.15)(tsx@4.22.4)(typescript@6.0.3)
