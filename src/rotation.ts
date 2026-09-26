@@ -159,13 +159,15 @@ export function writeJsonlEntry(
   maxRotatedFiles: number,
 ): string | undefined {
   const buffer = Buffer.from(`${JSON.stringify(entry)}\n`);
+  let rotatedPath: string | undefined;
 
+  // Rotate only between entries so that JSON lines are never split.
   if (sink.bytesWritten > 0 && sink.bytesWritten + buffer.length > maxBytes) {
-    rotateLogSink(sink, maxRotatedFiles);
+    rotatedPath = rotateLogSink(sink, maxRotatedFiles);
   }
 
   writeSync(sink.fileDescriptor, buffer);
   sink.bytesWritten += buffer.length;
 
-  return sink.path;
+  return rotatedPath;
 }
