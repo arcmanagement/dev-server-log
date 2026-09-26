@@ -16,6 +16,8 @@ This makes `tail -F` and `jq` useful while the command is still running.
 pnpm add -D dev-server-log
 ```
 
+Requires Node.js 22 or later.
+
 ## Usage
 
 Wrap any command after `--`.
