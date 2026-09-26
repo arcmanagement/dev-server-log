@@ -193,6 +193,9 @@ export async function runLoggedProcess({
 
     const handleSignal = (signal: NodeJS.Signals) => {
       writeLifecycleLog('signal', `received ${signal}`, { signal });
+      // Ctrl+C in a terminal already sends SIGINT to the whole foreground
+      // process group, so forwarding it would deliver it to the command twice.
+      if (signal === 'SIGINT' && process.stdin.isTTY === true) return;
       child.kill(signal);
     };
 
@@ -240,7 +243,9 @@ export async function runLoggedProcess({
       finish(code, signal, exitCode);
     });
 
-    process.once('SIGINT', handleSigint);
-    process.once('SIGTERM', handleSigterm);
+    // Keep handling signals until the command exits so that devlog is not
+    // killed by a repeated signal while the command is shutting down.
+    process.on('SIGINT', handleSigint);
+    process.on('SIGTERM', handleSigterm);
   });
 }
