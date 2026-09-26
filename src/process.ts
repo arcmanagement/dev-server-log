@@ -217,15 +217,19 @@ export async function runLoggedProcess({
     });
 
     child.on('error', (error) => {
+      if (didFinish) return;
       terminalStderr.write(`${error.message}\n`);
       writeLifecycleLog('error', `failed: ${error.message}`, {
         errorName: error.name,
         errorMessage: error.message,
       });
-      finish(null, null, 1);
+      // Without a pid the child never started, so 'close' may still fire
+      // but no output will follow. Otherwise wait for 'close' to finish.
+      if (child.pid == null) finish(null, null, 1);
     });
 
     child.on('close', (code, signal) => {
+      if (didFinish) return;
       flushOutputJsonl();
       const exitDescription =
         signal == null ? `code ${code ?? 0}` : `signal ${signal}`;

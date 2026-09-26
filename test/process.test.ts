@@ -102,6 +102,32 @@ describe('runLoggedProcess', () => {
     expect(result.exitCode).toBe(7);
   });
 
+  it('records spawn failures without writing after the logs are closed', async () => {
+    const cwd = tempDir();
+    const terminalStderr = new MemoryWritable();
+
+    const result = await runLoggedProcess({
+      command: 'dev-server-log-command-that-does-not-exist',
+      cwd,
+      label: 'missing',
+      logPath: '.log/missing.log',
+      terminalStderr,
+      terminalStdout: new MemoryWritable(),
+    });
+
+    // Let a trailing 'close' event run; it must not write to closed files.
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    expect(result).toMatchObject({ code: null, exitCode: 1, signal: null });
+    expect(terminalStderr.text()).toContain('ENOENT');
+
+    const entries = readJsonl(join(cwd, '.log/missing.jsonl'));
+    expect(entries.map((entry) => entry.event)).toEqual(['start', 'error']);
+    expect(readFileSync(join(cwd, '.log/missing.log'), 'utf8')).toContain(
+      'missing failed: spawn dev-server-log-command-that-does-not-exist ENOENT',
+    );
+  });
+
   it('rotates plain text and JSONL logs without splitting JSON lines', async () => {
     const cwd = tempDir();
 
