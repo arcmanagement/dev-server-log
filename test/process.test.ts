@@ -104,6 +104,7 @@ describe('runLoggedProcess', () => {
 
   it('rotates plain text and JSONL logs without splitting JSON lines', async () => {
     const cwd = tempDir();
+    const terminalStderr = new MemoryWritable();
 
     const result = await runLoggedProcess({
       args: [
@@ -116,11 +117,14 @@ describe('runLoggedProcess', () => {
       logPath: '.log/rotate.log',
       maxBytes: 120,
       maxRotatedFiles: 2,
-      terminalStderr: new MemoryWritable(),
+      terminalStderr,
       terminalStdout: new MemoryWritable(),
     });
 
     expect(result.exitCode).toBe(0);
+    expect(terminalStderr.text()).toMatch(
+      /\[rotate\] rotated jsonl log to .+rotate\..+\.jsonl\n/,
+    );
     const files = readdirSync(join(cwd, '.log'));
     const rotatedPlain = files.filter((file) => /^rotate\..+\.log$/.test(file));
     const rotatedJsonl = files.filter((file) =>

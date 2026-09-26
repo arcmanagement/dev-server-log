@@ -9,7 +9,6 @@ import { createJsonlPath } from './paths.js';
 import {
   closeLogSink,
   createLogSink,
-  rotateLogSink,
   writeJsonlEntry,
   writeToLogSink,
 } from './rotation.js';
@@ -67,23 +66,7 @@ export async function runLoggedProcess({
   };
 
   const writeJsonl = (entry: Record<string, unknown>) => {
-    const beforePath = jsonlSink.path;
-    const beforeBytes = jsonlSink.bytesWritten;
-    if (beforeBytes > 0) {
-      const estimated = Buffer.byteLength(
-        `${JSON.stringify({ timestamp: new Date().toISOString(), label, ...entry })}\n`,
-      );
-      if (beforeBytes + estimated > logMaxBytes) {
-        const rotatedPath = rotateLogSink(jsonlSink, logMaxRotatedFiles);
-        if (rotatedPath != null) {
-          terminalStderr.write(
-            `[${label}] rotated jsonl log to ${rotatedPath}\n`,
-          );
-        }
-      }
-    }
-
-    writeJsonlEntry(
+    const rotatedPath = writeJsonlEntry(
       jsonlSink,
       {
         timestamp: new Date().toISOString(),
@@ -93,9 +76,8 @@ export async function runLoggedProcess({
       logMaxBytes,
       logMaxRotatedFiles,
     );
-
-    if (beforePath !== jsonlSink.path) {
-      terminalStderr.write(`[${label}] rotated jsonl log from ${beforePath}\n`);
+    if (rotatedPath != null) {
+      terminalStderr.write(`[${label}] rotated jsonl log to ${rotatedPath}\n`);
     }
   };
 
