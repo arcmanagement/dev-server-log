@@ -10,7 +10,6 @@ export default defineConfig({
   format: ['esm'],
   noExternal: ['commander'],
   platform: 'node',
-  sourcemap: true,
   splitting: false,
   target: 'node24',
   treeshake: true,

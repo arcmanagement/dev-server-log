@@ -7,7 +7,7 @@ export {
   resolveLogMaxBytes,
   resolveLogMaxRotatedFiles,
 } from './config.js';
-export { createJsonlPath, normalizeForwardedArgs } from './paths.js';
+export { createJsonlPath } from './paths.js';
 export { runLoggedProcess } from './process.js';
 export type {
   JsonlBaseLogEntry,
