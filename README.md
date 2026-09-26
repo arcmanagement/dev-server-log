@@ -32,6 +32,20 @@ devlog --name storybook --log .log/storybook.log -- storybook dev --port 6006 --
 .log/storybook.log   -> .log/storybook.jsonl
 ```
 
+## Colors and TTY
+
+The command's stdout and stderr are pipes, not a TTY, so many tools would
+turn their colors off. When `devlog` itself runs in a color-capable terminal,
+it sets `FORCE_COLOR` for the command (1, 2 or 3 depending on the terminal's
+color depth) so colors are kept in the terminal and in the `message` field.
+
+- An existing `FORCE_COLOR` or `NO_COLOR` in the environment is respected.
+- Pass `--no-force-color` (or `forceColor: false` in the library API) to
+  disable it.
+
+Features that need a real TTY on stdout, such as Vite's `press h + enter`
+keyboard shortcuts, are not available while the command is wrapped.
+
 ## package.json examples
 
 ```json

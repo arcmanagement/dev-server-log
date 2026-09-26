@@ -3,6 +3,7 @@ import { StringDecoder } from 'node:string_decoder';
 import spawn from 'cross-spawn';
 
 import { stripAnsi } from './ansi.js';
+import { createChildEnv } from './color.js';
 import { resolveLogMaxBytes, resolveLogMaxRotatedFiles } from './config.js';
 import { formatCommand } from './format.js';
 import { createJsonlPath } from './paths.js';
@@ -34,6 +35,7 @@ export async function runLoggedProcess({
   jsonlPath,
   maxBytes,
   maxRotatedFiles,
+  forceColor,
   terminalStdout = process.stdout,
   terminalStderr = process.stderr,
 }: RunLoggedProcessOptions): Promise<RunLoggedProcessResult> {
@@ -166,7 +168,7 @@ export async function runLoggedProcess({
   return await new Promise<RunLoggedProcessResult>((resolveResult) => {
     const child = spawn(command, args, {
       cwd,
-      env,
+      env: createChildEnv(env, terminalStdout, forceColor),
       stdio: ['inherit', 'pipe', 'pipe'],
     });
     let didFinish = false;
