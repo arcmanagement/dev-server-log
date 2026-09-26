@@ -61,6 +61,10 @@ Humans can follow the plain text log:
 tail -F .log/start-dev.log
 ```
 
+The plain text log keeps the command's output as is, including ANSI color
+codes, so `tail -F` shows it in color. Use `less -R` to page through it, or
+search `messagePlain` in the JSONL log when you need text without colors.
+
 Agents and scripts can query JSONL:
 
 ```sh
