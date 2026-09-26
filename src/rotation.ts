@@ -19,6 +19,19 @@ export type LogSink = {
 
 let rotatedLogSequence = 0;
 
+function escapeRegExp(text: string): string {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+// Matches names produced by buildRotatedLogPath():
+// <name>.<ISO timestamp with ':' and '.' replaced>[-<sequence>][-<collision>]<ext>
+function createRotatedLogPattern(logPath: string): RegExp {
+  const parsed = parse(logPath);
+  return new RegExp(
+    `^${escapeRegExp(parsed.name)}\\.\\d{4}-\\d{2}-\\d{2}T\\d{2}-\\d{2}-\\d{2}-\\d{3}Z(?:-\\d+){0,2}${escapeRegExp(parsed.ext)}$`,
+  );
+}
+
 export function buildRotatedLogPath(logPath: string): string {
   const parsed = parse(logPath);
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
@@ -49,18 +62,12 @@ export function pruneRotatedLogs(
   protectedPath?: string,
 ): void {
   const parsed = parse(logPath);
-  const rotatedPrefix = `${parsed.name}.`;
+  const rotatedLogPattern = createRotatedLogPattern(logPath);
   const protectedLogPath =
     protectedPath == null ? undefined : resolve(protectedPath);
   const rotatedLogs = readdirSync(parsed.dir, { withFileTypes: true })
-    .filter((entry) => entry.isFile())
+    .filter((entry) => entry.isFile() && rotatedLogPattern.test(entry.name))
     .map((entry) => resolve(parsed.dir, entry.name))
-    .filter((path) => {
-      const candidate = parse(path);
-      return (
-        candidate.ext === parsed.ext && candidate.base.startsWith(rotatedPrefix)
-      );
-    })
     .map((path) => ({
       path,
       mtimeMs: statSync(path).mtimeMs,

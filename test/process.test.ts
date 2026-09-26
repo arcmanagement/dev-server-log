@@ -1,4 +1,10 @@
-import { mkdtempSync, readdirSync, readFileSync } from 'node:fs';
+import {
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  writeFileSync,
+} from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { Writable } from 'node:stream';
@@ -137,5 +143,44 @@ describe('runLoggedProcess', () => {
         expect(() => JSON.parse(line)).not.toThrow();
       }
     }
+  });
+
+  it('prunes only its own rotated logs, not logs whose name shares the prefix', async () => {
+    const cwd = tempDir();
+    const logDir = join(cwd, '.log');
+    mkdirSync(logDir);
+    const siblingFiles = [
+      'app.api.log',
+      'app.api.2026-01-01T00-00-00-000Z.log',
+      'app.api.jsonl',
+      'app.old.log',
+    ];
+    for (const file of siblingFiles) {
+      writeFileSync(join(logDir, file), 'keep\n');
+    }
+
+    for (let run = 0; run < 3; run += 1) {
+      await runLoggedProcess({
+        args: ['-e', 'console.log("run")'],
+        command: process.execPath,
+        cwd,
+        label: 'app',
+        logPath: '.log/app.log',
+        maxRotatedFiles: 1,
+        terminalStderr: new MemoryWritable(),
+        terminalStdout: new MemoryWritable(),
+      });
+    }
+
+    const files = readdirSync(logDir);
+    for (const file of siblingFiles) {
+      expect(files).toContain(file);
+    }
+    expect(
+      files.filter((file) => /^app\.\d{4}-.+Z(?:-\d+)*\.log$/.test(file)),
+    ).toHaveLength(1);
+    expect(
+      files.filter((file) => /^app\.\d{4}-.+Z(?:-\d+)*\.jsonl$/.test(file)),
+    ).toHaveLength(1);
   });
 });
