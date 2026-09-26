@@ -11,6 +11,7 @@ type CliOptions = {
   jsonl?: string;
   maxBytes?: number;
   maxRotatedFiles?: number;
+  forceColor: boolean;
 };
 
 const program = new Command();
@@ -55,6 +56,10 @@ program
       }
     },
   )
+  .option(
+    '--no-force-color',
+    'do not set FORCE_COLOR for the command when the terminal supports colors',
+  )
   .argument(
     '<command...>',
     'command to run; put it after -- when it has its own options',
@@ -90,6 +95,10 @@ if (options.maxBytes != null) {
 
 if (options.maxRotatedFiles != null) {
   runOptions.maxRotatedFiles = options.maxRotatedFiles;
+}
+
+if (!options.forceColor) {
+  runOptions.forceColor = false;
 }
 
 try {

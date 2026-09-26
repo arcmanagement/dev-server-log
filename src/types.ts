@@ -66,6 +66,12 @@ export type RunLoggedProcessOptions = {
   jsonlPath?: string;
   maxBytes?: number;
   maxRotatedFiles?: number;
+  /**
+   * Set FORCE_COLOR for the command. Defaults to setting it when
+   * terminalStdout is a color-capable TTY and neither FORCE_COLOR nor
+   * NO_COLOR is set in env.
+   */
+  forceColor?: boolean;
   terminalStdout?: Writable;
   terminalStderr?: Writable;
 };
