@@ -123,6 +123,14 @@ export function rotateLogSink(
   return rotatedPath;
 }
 
+// Returns the end of the largest prefix of buffer[offset, limit) that does
+// not split a UTF-8 character, or limit when the character is too long.
+function findUtf8Boundary(buffer: Buffer, offset: number, limit: number) {
+  let end = limit;
+  while (end > offset && ((buffer[end] ?? 0) & 0xc0) === 0x80) end -= 1;
+  return end > offset ? end : limit;
+}
+
 export function writeToLogSink(
   sink: LogSink,
   data: Buffer | string,
@@ -131,22 +139,41 @@ export function writeToLogSink(
 ): string[] {
   const buffer = Buffer.isBuffer(data) ? data : Buffer.from(data);
   const rotatedPaths: string[] = [];
+  const rotate = () => {
+    const rotatedPath = rotateLogSink(sink, maxRotatedFiles);
+    if (rotatedPath != null) rotatedPaths.push(rotatedPath);
+  };
   let offset = 0;
 
   while (offset < buffer.length) {
-    if (sink.bytesWritten >= maxBytes) {
-      const rotatedPath = rotateLogSink(sink, maxRotatedFiles);
-      if (rotatedPath != null) rotatedPaths.push(rotatedPath);
+    const availableBytes = maxBytes - sink.bytesWritten;
+    if (buffer.length - offset <= availableBytes) {
+      writeSync(sink.fileDescriptor, buffer.subarray(offset));
+      sink.bytesWritten += buffer.length - offset;
+      break;
     }
 
-    const writableBytes = Math.min(
-      maxBytes - sink.bytesWritten,
-      buffer.length - offset,
-    );
-    const chunk = buffer.subarray(offset, offset + writableBytes);
-    writeSync(sink.fileDescriptor, chunk);
-    sink.bytesWritten += chunk.length;
-    offset += chunk.length;
+    if (availableBytes <= 0) {
+      rotate();
+      continue;
+    }
+
+    // Prefer rotating right after the last line that fits.
+    let end = buffer.lastIndexOf(0x0a, offset + availableBytes - 1) + 1;
+    if (end <= offset) {
+      // The next line does not fit: start it in a new file, and only split
+      // it when it is longer than a whole file.
+      if (sink.bytesWritten > 0) {
+        rotate();
+        continue;
+      }
+      end = findUtf8Boundary(buffer, offset, offset + availableBytes);
+    }
+
+    writeSync(sink.fileDescriptor, buffer.subarray(offset, end));
+    sink.bytesWritten += end - offset;
+    offset = end;
+    rotate();
   }
 
   return rotatedPaths;
